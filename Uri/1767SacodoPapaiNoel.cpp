@@ -1,66 +1,51 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-#define f first
-#define s second
+#define fi first
+#define se second
 
 typedef pair<int,int> ii;
 
-int pac;
+
+int pac, qt, p;
 int val[101],peso[101];
 ii pd[101][51];
 
-ii fu( int v, int w)
+void f( int v, int w)
 {
-	if(v>=pac)
-		return ii(0,w);
+	for( int i=0; i<=50; i++)
+		pd[0][i]=ii(0,0);
+	for( int i=0; i<=100; i++)
+		pd[i][0]=ii(0,0);
 	
-	if( pd[v][w].f!=-1)
-		return pd[v][w];
-	
-	if(w<peso[v]) // se n couber na mochila passa
-		return pd[v][w]= fu( v+1, w);
-		
-	int v1= val[v] + fu( v+1, w-peso[v]).f; // peguei
-	int v2= fu( v+1, w).f; // n peguei
-	
-	return pd[v][w]=ii(max(v1,v2),max(w,w-peso[v]));
-}
-
-int cont,pes;
-
-void rec( int v, int w)
-{
-	if(v>=pac || w<peso[v])
-		return;
-	
-	
-	ii escolha = fu(v, w);
-	int p1 = val[v] + fu(v + 1, w - peso[v]);
-	int p2 = fu(v + 1, w).f;
-
-	if (escolha == p1 )
+	for( int i=1; i<=pac; i++)
 	{
-		cont++;
-		cout<<val[v]<<" "<<v<<" "<<peso[v]<<endl;
-		pes+=peso[v];
-		rec(v + 1, w - peso[v]);
-		return;
-		
-	}
-	else
-	{
-		
-		rec(v + 1, w);
+		for( int j=1; j<=50; j++)
+		{
+			pd[i][j]=pd[i-1][j];
+			if( peso[i-1]<=j && pd[i][j].fi<val[i-1]+pd[i-1][j-peso[i-1]].fi)
+				pd[i][j] = ii(val[i-1]+pd[i-1][j-peso[i-1]].fi, pd[i-1][j-peso[i-1]].se + 1);
+		}
 	}
 	
+	qt=0,p=0;
+	for( int i=1; i<=50; i++)
+	{
+		if(pd[pac][i]!=pd[pac][i-1])
+			p=i;
+	}
 	
+
+	//~ rec(1,50);
 }
+
+
 
 int main()
 {
-	freopen("entrada","r",stdin);
-	freopen("saida","w",stdout);
+	//~ freopen("entrada","r",stdin);
+	//~ freopen("saida","w",stdout);
+	
 	int n;
 	cin>>n;
 	for( int j=0; j<n; j++)
@@ -69,24 +54,13 @@ int main()
 		for( int i=0; i<pac; i++)
 		{
 			cin>>val[i]>>peso[i];
-			for( int k=0; k<51; k++)
-				pd[i][k]=ii(-1,0);
-			
 		}
-		cont=0,pes=0;
+		//~ cont=0;
 		
-		int res=f(0,50);
-		rec(0,50);
+		f(0,50);
 		
-		for( int i=0; i<pac; i++)
-		{
-			for( int k=0; k<51; k++)
-				if(pd[i][k]!=-1)
-					printf("%d-%d |  ",k,pd[i][k]);
-			cout<<endl;
-		}
-		cout<<res<<" brinquedos"<<endl;
-		cout<<"Peso: "<<pes<<" kg"<<endl;
-		cout<<"sobra(m) "<<pac-cont<<" pacote(s)"<<endl<<endl;
+		cout<<pd[pac][50].fi<<" brinquedos"<<endl;
+		cout<<"Peso: "<<p<<" kg"<<endl;
+		cout<<"sobra(m) "<<pac-pd[pac][50].se<<" pacote(s)"<<endl<<endl;
 	}
 }
